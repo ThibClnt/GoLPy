@@ -2,6 +2,46 @@ from vector2 import Vector2
 import time
 
 
+class Mask:
+
+    def __init__(self):
+        self.mask = dict()
+
+    def add(self, key):
+        if key in self.mask.keys():
+            self.mask[key] += 1
+        else:
+            self.mask[key] = 1
+
+    def remove(self, key):
+        self.mask[key] -= 1
+        if self.mask[key] == 0:
+            del self.mask[key]
+
+    def copy(self):
+        mask = Mask()
+        mask.mask = self.mask.copy()
+        return mask
+
+    def __setitem__(self, key, value):
+        self.mask[key] = value
+
+    def __getitem__(self, item):
+        return self.mask[item]
+
+    def __str__(self):
+        return str(self.mask)
+
+    def __contains__(self, item):
+        return item in self.mask.keys()
+
+    def __iter__(self):
+        return iter(self.mask)
+
+    def __next__(self):
+        return next(self.mask)
+
+
 class CellGrid:
 
     def __init__(self, canvas=None, cell_size=None, color=None, **kwargs):
@@ -12,9 +52,10 @@ class CellGrid:
         self.exists = True
         self.active_cells = {}
         self.mask = set()
+        self.mask_count = Mask()
         self.simulating = False
         # Speed in Hz
-        self.speed = 2
+        self.speed = 10
         self.acceleration_factor = kwargs.pop("acceleration_factor", 1.3)
 
         self.canvas = canvas
@@ -55,35 +96,26 @@ class CellGrid:
             around = pos + vec
             if not self.is_alive(around):
                 self.mask.add(around)
+                self.mask_count.add(around)
 
         if pos in self.mask:
             self.mask.remove(pos)
+            self.mask_count.remove(pos)
 
     def __remove(self, pos: Vector2):
         cell = self.active_cells.pop(pos)
+        self.canvas.delete(cell)
 
-        # Remove neighbours from mask
         for vec in self.__around():
             around = pos + vec
             if around in self.mask:
-                self.mask.remove(around)
+                if self.mask_count[around] == 1:
+                    self.mask.remove(around)
+                self.mask_count.remove(around)
 
-        # Regenerate the mask
-        for vec in self.__around():
-            around = pos + vec
             if self.is_alive(around):
-                for vec2 in self.__around():
-                    around2 = vec2 + around
-                    if not self.is_alive(around2):
-                        self.mask.add(around2)
-            around = pos + vec * 2
-            if self.is_alive(around):
-                for vec2 in self.__around():
-                    around2 = vec2 + around
-                    if not self.is_alive(around2):
-                        self.mask.add(around2)
-
-        self.canvas.delete(cell)
+                self.mask.add(pos)
+                self.mask_count.add(pos)
 
     def start_stop(self):
         self.simulating = not self.simulating
@@ -111,7 +143,7 @@ class CellGrid:
                 self.__remove(active_cell)
 
     def speed_up(self):
-        if self.speed / self.acceleration_factor < 8:
+        if self.speed / self.acceleration_factor < 60:
             self.speed *= self.acceleration_factor
 
     def speed_down(self):

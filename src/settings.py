@@ -1,6 +1,6 @@
 # Width and height of the app
-WIDTH = 1920
-HEIGHT = 1017
+WIDTH = 1024
+HEIGHT = 760
 
 # window app position
 WINDOW_X = (1920 - WIDTH) // 2

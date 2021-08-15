@@ -21,6 +21,7 @@ class Window(Tk):
         Main Window of the app, with only a constructor
         """
         Tk.__init__(self)
+        self.title("Golpy")
         self.geometry(f"{WIDTH}x{HEIGHT}+{WINDOW_X}+{WINDOW_Y}")
 
         # Create the central widget and make it expand
