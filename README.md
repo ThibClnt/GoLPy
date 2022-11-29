@@ -3,7 +3,7 @@
 ## Presentation
 
 Golpy stands for "Game of Life in Python".
-Far from the idea of creating a "new innovant python implementation of the Conways's Game of life", it is first an exercise, a good excuse to practice python for me.
+Far from the idea of creating a "new innovant python implementation of the Conways's Game of life", it is first an exercise, a good excuse to practice python.
 
 ## Controls
 
